@@ -1,0 +1,83 @@
+extends layout
+
+block content
+    .block#a1
+        .list
+        .input
+            button Click!
+    .block#a2
+        .list
+        .input
+            button Click!
+    .block#a3
+        .list
+        .input
+            button Click!
+    .block#b1
+        .list
+        .input
+            button Click!
+    .block#b2
+        .list
+        .input
+            button Click!
+    .block#c1
+        .list
+        .input
+            button Click!
+    .block#c2
+        .list
+        .input
+            button Click!
+    .block#d1
+        .list
+        .input
+            button Click!
+
+    script(src="/jquery/dist/jquery.min.js")
+    script(src="/socket.io/socket.io.js")
+
+    script.
+        function createSocket(room) {
+            var socket = io();
+            socket.on('ready', function () {
+                socket.emit('join', {
+                    room: room
+                });
+
+                socket.on('message', function (data) {
+                    console.log(data.message);
+                });
+            });
+            return socket;
+        }
+
+        function setupSocket(user, socket) {
+            var selector = '#' + user;
+
+            $(selector + ' button').click(function () {
+                socket.emit('message', {message: 'msg from ' + user});
+            });
+
+            socket.on('message', function (data) {
+                $(selector + ' .list').append($('<div>' + data.message + '</div>'));
+            });
+        }
+
+        $(document).ready(function () {
+            var sockets = {
+                'a1': createSocket('A'),
+                'a2': createSocket('A'),
+                'a3': createSocket('A'),
+                'b1': createSocket('B'),
+                'b2': createSocket('B'),
+                'c1': createSocket('C'),
+                'c2': createSocket('C'),
+                'd1': createSocket('D')
+            };
+
+            for (var k in sockets) {
+                setupSocket(k, sockets[k]);
+            }
+        });
+
